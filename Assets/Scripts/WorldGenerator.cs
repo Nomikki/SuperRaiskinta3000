@@ -8,6 +8,9 @@ public class WorldGenerator : MonoBehaviour
   public GameObject chunkObject;
   List<MapTile> tiles = new List<MapTile>();
   public GameObject playerObject;
+  Vector3 startPos;
+
+
   const int MAX_LEAF_SIZE = 20 * 3;
   List<Leaf> _leafs = new List<Leaf>();
   Leaf root;
@@ -88,8 +91,8 @@ public class WorldGenerator : MonoBehaviour
 
     if (first)
     {
-      Vector3 p = new Vector3((x1 + x2) / 2, 0, (y1 + y2) / 2);
-      //playerObject.transform.position = p;
+      startPos = new Vector3((x1 + x2) / 2, 0, (y1 + y2) / 2);
+      playerObject.GetComponent<PlayerController>().SetPosition(startPos);
     }
   }
 
@@ -193,29 +196,6 @@ public class WorldGenerator : MonoBehaviour
         chunk.Populate(new Vector2(x * VoxelData.chunkWidth, z * VoxelData.chunkWidth));
       }
     }
-
-
-    /*
-    for (int y = 0; y < mapy; y++)
-    {
-      for (int x = 0; x < mapx; x++)
-      {
-
-        if (tiles[x + y * mapx].createMe == true)
-        {
-
-          if (tiles[x + y * mapx].canWalk == false)
-          {
-            //Instantiate(walls[0], new Vector3(x, 0.5f, y), Quaternion.identity);
-          }
-          else
-          {
-            //Instantiate(floors[floorID], new Vector3(x, -0.5f, y), Quaternion.identity);
-          }
-        }
-      }
-    }
-    */
   }
 
 }
