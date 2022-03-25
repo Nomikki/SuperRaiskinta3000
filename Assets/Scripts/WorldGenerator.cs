@@ -4,15 +4,9 @@ using UnityEngine;
 
 public class WorldGenerator : MonoBehaviour
 {
-  public const int mapx = 80 * 2;
-  public const int mapy = 80 * 2;
 
+  public GameObject chunkObject;
   List<MapTile> tiles = new List<MapTile>();
-  /*
-  public GameObject[] walls;
-  public GameObject[] floors;
-  public GameObject[] lamps;
-  */
   public GameObject playerObject;
   const int MAX_LEAF_SIZE = 20 * 3;
   List<Leaf> _leafs = new List<Leaf>();
@@ -28,19 +22,19 @@ public class WorldGenerator : MonoBehaviour
 
   void initAll()
   {
-    for (int y = 0; y < mapy; y++)
+    for (int y = 0; y < VoxelData.dungeonSize; y++)
     {
-      for (int x = 0; x < mapx; x++)
+      for (int x = 0; x < VoxelData.dungeonSize; x++)
       {
         tiles.Add(new MapTile());
       }
     }
 
-    for (int y = 0; y < mapy; y++)
+    for (int y = 0; y < VoxelData.dungeonSize; y++)
     {
-      for (int x = 0; x < mapx; x++)
+      for (int x = 0; x < VoxelData.dungeonSize; x++)
       {
-        tiles[x + y * mapx].canWalk = false;
+        tiles[x + y * VoxelData.dungeonSize].canWalk = false;
       }
     }
   }
@@ -67,20 +61,20 @@ public class WorldGenerator : MonoBehaviour
     {
       for (int tiley = y1; tiley <= y2; tiley++)
       {
-        if (tilex > 0 && tiley > 0 && tilex < mapx && tiley < mapy)
+        if (tilex > 0 && tiley > 0 && tilex < VoxelData.dungeonSize && tiley < VoxelData.dungeonSize)
         {
-          tiles[tilex + tiley * mapx].canWalk = true;
-          tiles[tilex + tiley * mapx].createMe = true;
+          tiles[tilex + tiley * VoxelData.dungeonSize].canWalk = true;
+          tiles[tilex + tiley * VoxelData.dungeonSize].createMe = true;
 
-          tiles[(tilex - 1) + (tiley) * mapx].createMe = true;
-          tiles[(tilex + 1) + (tiley) * mapx].createMe = true;
-          tiles[(tilex) + (tiley - 1) * mapx].createMe = true;
-          tiles[(tilex) + (tiley + 1) * mapx].createMe = true;
+          tiles[(tilex - 1) + (tiley) * VoxelData.dungeonSize].createMe = true;
+          tiles[(tilex + 1) + (tiley) * VoxelData.dungeonSize].createMe = true;
+          tiles[(tilex) + (tiley - 1) * VoxelData.dungeonSize].createMe = true;
+          tiles[(tilex) + (tiley + 1) * VoxelData.dungeonSize].createMe = true;
 
-          tiles[(tilex - 1) + (tiley - 1) * mapx].createMe = true;
-          tiles[(tilex + 1) + (tiley - 1) * mapx].createMe = true;
-          tiles[(tilex - 1) + (tiley + 1) * mapx].createMe = true;
-          tiles[(tilex + 1) + (tiley + 1) * mapx].createMe = true;
+          tiles[(tilex - 1) + (tiley - 1) * VoxelData.dungeonSize].createMe = true;
+          tiles[(tilex + 1) + (tiley - 1) * VoxelData.dungeonSize].createMe = true;
+          tiles[(tilex - 1) + (tiley + 1) * VoxelData.dungeonSize].createMe = true;
+          tiles[(tilex + 1) + (tiley + 1) * VoxelData.dungeonSize].createMe = true;
         }
       }
     }
@@ -104,8 +98,8 @@ public class WorldGenerator : MonoBehaviour
   void generateBSP()
   {
 
-    int _sprMapX = mapx - 10;
-    int _sprMapY = mapy - 10;
+    int _sprMapX = VoxelData.dungeonSize - 10;
+    int _sprMapY = VoxelData.dungeonSize - 10;
 
     root = new Leaf(10, 10, _sprMapX, _sprMapY);
 
@@ -138,7 +132,7 @@ public class WorldGenerator : MonoBehaviour
         }
       }
     }
-    
+
     _leafs[0].createRooms();
 
     //-------------
@@ -168,6 +162,21 @@ public class WorldGenerator : MonoBehaviour
 
   void building()
   {
+    //create some chunks
+    int numOfChunks = (int)Mathf.Ceil((float)(VoxelData.dungeonSize / (float)VoxelData.chunkWidth));
+
+
+    for (int y = 0; y < numOfChunks; y++)
+    {
+      for (int x = 0; x < numOfChunks; x++)
+      {
+        GameObject gob = Instantiate(chunkObject, Vector3.zero, Quaternion.identity);
+        gob.name = "chunk " + x + ", " + y;
+      }
+    }
+
+
+    /*
     for (int y = 0; y < mapy; y++)
     {
       for (int x = 0; x < mapx; x++)
@@ -186,8 +195,8 @@ public class WorldGenerator : MonoBehaviour
           }
         }
       }
-
     }
+    */
   }
 
 }
