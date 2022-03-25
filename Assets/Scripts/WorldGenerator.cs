@@ -9,6 +9,7 @@ public class WorldGenerator : MonoBehaviour
   List<MapTile> tiles = new List<MapTile>();
   public GameObject playerObject;
   public GameObject door;
+  public Minimap minimap;
   Vector3 startPos;
 
   public Material material;
@@ -25,7 +26,10 @@ public class WorldGenerator : MonoBehaviour
   {
     initAll();
     generateBSP();
+    minimap.worldGenerator = this;
+    minimap.GenerateMinimap();
     building();
+    
   }
 
   void initAll()
