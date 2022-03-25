@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour
 {
 
   public float movingSpeed = 1.5f;
+  public float jumpForce = 1.5f;
+
   public float mouseSensitivity = 1.0f;
   Camera cam;
   Rigidbody body;
@@ -13,6 +15,7 @@ public class PlayerController : MonoBehaviour
   public float lightTurningSpeed = 20.0f;
   public float lightMovingSpeed = 15.0f;
 
+  public bool isGrounded = false;
 
 
   Vector2 lookAt;
@@ -30,6 +33,7 @@ public class PlayerController : MonoBehaviour
   {
     float horizontal = Input.GetAxis("Horizontal");
     float vertical = Input.GetAxis("Vertical");
+    float tryJump = Input.GetAxis("Jump");
     Vector3 velocity = body.velocity;
     float oldY = velocity.y;
     velocity.y = 0;
@@ -38,6 +42,17 @@ public class PlayerController : MonoBehaviour
     velocity = Vector3.ClampMagnitude(velocity, 1);
     velocity *= movingSpeed;
     velocity.y = oldY;
+
+    if (tryJump > 0)
+    {
+      if (isGrounded)
+      {
+        velocity.y = jumpForce;
+        isGrounded = false;
+      }
+    }
+
+
     body.velocity = velocity;
   }
 
@@ -70,9 +85,19 @@ public class PlayerController : MonoBehaviour
     flashlight.transform.SetPositionAndRotation(lpos, Quaternion.Euler(lrot));
   }
 
+  void CheckIfTouchingGround()
+  {
+    isGrounded = false;
+    RaycastHit hit;
+    if (Physics.Raycast(body.position, Vector3.down, out hit, 0.3f)) {
+      isGrounded = true;
+    }
+  }
+
   // Update is called once per frame
   void Update()
   {
+    CheckIfTouchingGround();
     HandleMovement();
     HandleRotations();
     HandleFlashlight();
