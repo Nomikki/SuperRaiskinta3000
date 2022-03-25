@@ -89,7 +89,8 @@ public class PlayerController : MonoBehaviour
   {
     isGrounded = false;
     RaycastHit hit;
-    if (Physics.Raycast(body.position, Vector3.down, out hit, 0.3f)) {
+    if (Physics.Raycast(body.position, Vector3.down, out hit, 0.3f))
+    {
       isGrounded = true;
     }
   }
