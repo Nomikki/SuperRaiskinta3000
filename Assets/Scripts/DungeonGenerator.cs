@@ -27,7 +27,7 @@ public class Rectangle
   }
 };
 
-public class BSPPoint : MonoBehaviour
+public class BSPPoint
 {
   public int x, y;
 
@@ -278,31 +278,31 @@ class Leaf
       {
         if (Random.Range(0, 100) < 50)
         {
-          halls.Add(new Rectangle(point2.x, point1.y, Mathf.Abs(w), 1));
-          halls.Add(new Rectangle(point2.x, point2.y, 1, Mathf.Abs(h)));
+          halls.Add(new Rectangle(point2.x, point1.y, Mathf.Abs(w), 0));
+          halls.Add(new Rectangle(point2.x, point2.y, 0, Mathf.Abs(h)));
         }
         else
         {
-          halls.Add(new Rectangle(point2.x, point2.y, Mathf.Abs(w), 1));
-          halls.Add(new Rectangle(point1.x, point2.y, 1, Mathf.Abs(h)));
+          halls.Add(new Rectangle(point2.x, point2.y, Mathf.Abs(w), 0));
+          halls.Add(new Rectangle(point1.x, point2.y, 0, Mathf.Abs(h)));
         }
       }
       else if (h > 0)
       {
         if (Random.Range(0, 100) < 50)
         {
-          halls.Add(new Rectangle(point2.x, point1.y, Mathf.Abs(w), 1));
-          halls.Add(new Rectangle(point2.x, point1.y, 1, Mathf.Abs(h)));
+          halls.Add(new Rectangle(point2.x, point1.y, Mathf.Abs(w), 0));
+          halls.Add(new Rectangle(point2.x, point1.y, 0, Mathf.Abs(h)));
         }
         else
         {
-          halls.Add(new Rectangle(point2.x, point2.y, Mathf.Abs(w), 1));
-          halls.Add(new Rectangle(point1.x, point1.y, 1, Mathf.Abs(h)));
+          halls.Add(new Rectangle(point2.x, point2.y, Mathf.Abs(w), 0));
+          halls.Add(new Rectangle(point1.x, point1.y, 0, Mathf.Abs(h)));
         }
       }
       else // if (h == 0)
       {
-        halls.Add(new Rectangle(point2.x, point2.y, Mathf.Abs(w), 1));
+        halls.Add(new Rectangle(point2.x, point2.y, Mathf.Abs(w), 0));
       }
     }
     else if (w > 0)
@@ -311,42 +311,42 @@ class Leaf
       {
         if (Random.Range(0, 100) > 50)
         {
-          halls.Add(new Rectangle(point1.x, point2.y, Mathf.Abs(w), 1));
-          halls.Add(new Rectangle(point1.x, point2.y, 1, Mathf.Abs(h)));
+          halls.Add(new Rectangle(point1.x, point2.y, Mathf.Abs(w), 0));
+          halls.Add(new Rectangle(point1.x, point2.y, 0, Mathf.Abs(h)));
         }
         else
         {
-          halls.Add(new Rectangle(point1.x, point1.y, Mathf.Abs(w), 1));
-          halls.Add(new Rectangle(point2.x, point2.y, 1, Mathf.Abs(h)));
+          halls.Add(new Rectangle(point1.x, point1.y, Mathf.Abs(w),0));
+          halls.Add(new Rectangle(point2.x, point2.y, 0, Mathf.Abs(h)));
         }
       }
       else if (h > 0)
       {
         if (Random.Range(0, 100) < 50)
         {
-          halls.Add(new Rectangle(point1.x, point1.y, Mathf.Abs(w), 1));
-          halls.Add(new Rectangle(point2.x, point1.y, 1, Mathf.Abs(h)));
+          halls.Add(new Rectangle(point1.x, point1.y, Mathf.Abs(w), 0));
+          halls.Add(new Rectangle(point2.x, point1.y, 0, Mathf.Abs(h)));
         }
         else
         {
-          halls.Add(new Rectangle(point1.x, point2.y, Mathf.Abs(w), 1));
-          halls.Add(new Rectangle(point1.x, point1.y, 1, Mathf.Abs(h)));
+          halls.Add(new Rectangle(point1.x, point2.y, Mathf.Abs(w), 0));
+          halls.Add(new Rectangle(point1.x, point1.y, 0, Mathf.Abs(h)));
         }
       }
       else // if (h == 0)
       {
-        halls.Add(new Rectangle(point1.x, point1.y, Mathf.Abs(w), 1));
+        halls.Add(new Rectangle(point1.x, point1.y, Mathf.Abs(w), 0));
       }
     }
     else // if (w == 0)
     {
       if (h < 0)
       {
-        halls.Add(new Rectangle(point2.x, point2.y, 1, Mathf.Abs(h)));
+        halls.Add(new Rectangle(point2.x, point2.y, 0, Mathf.Abs(h)));
       }
       else if (h > 0)
       {
-        halls.Add(new Rectangle(point1.x, point1.y, 1, Mathf.Abs(h)));
+        halls.Add(new Rectangle(point1.x, point1.y, 0, Mathf.Abs(h)));
       }
     }
   }

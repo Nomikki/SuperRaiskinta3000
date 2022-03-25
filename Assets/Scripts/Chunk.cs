@@ -14,6 +14,7 @@ public class Chunk : MonoBehaviour
   List<Vector2> uvs = new List<Vector2>();
 
   public WorldGenerator worldGenerator;
+  
 
   // Start is called before the first frame update
   void Start()
@@ -55,10 +56,14 @@ public class Chunk : MonoBehaviour
         vertices.Add(pos + VoxelData.voxelVerts[VoxelData.voxelTriangles[face, 2]]);
         vertices.Add(pos + VoxelData.voxelVerts[VoxelData.voxelTriangles[face, 3]]);
 
-        uvs.Add(VoxelData.uvs[0]);
-        uvs.Add(VoxelData.uvs[1]);
-        uvs.Add(VoxelData.uvs[2]);
-        uvs.Add(VoxelData.uvs[3]);
+        if (face == 0 || face == 1 || face == 4 || face == 5)
+          AddTexture(0);
+        else if (face == 2)
+          AddTexture(2);
+        else if (face == 3)
+          AddTexture(1);
+
+
 
         triangles.Add(vertexIndex);
         triangles.Add(vertexIndex + 1);
@@ -79,6 +84,33 @@ public class Chunk : MonoBehaviour
     mesh.RecalculateNormals();
     meshFilter.mesh = mesh;
     meshCollider.sharedMesh = mesh;
+  }
+
+  void AddTexture(int textureID)
+  {
+    float y = textureID / VoxelData.TextureAtlasSizeInBlocks;
+    float x = textureID - (y * VoxelData.TextureAtlasSizeInBlocks);
+
+    x *= VoxelData.NormalizedBlockTextureSize;
+    y *= VoxelData.NormalizedBlockTextureSize;
+
+    y = 1.0f - y - VoxelData.NormalizedBlockTextureSize;
+    float norm = VoxelData.NormalizedBlockTextureSize;
+
+    uvs.Add(new Vector2(x, y));
+    uvs.Add(new Vector2(x, y + norm));
+    uvs.Add(new Vector2(x + norm, y));
+    uvs.Add(new Vector2(x + norm, y + norm));
+
+
+
+    /*
+    uvs.Add(VoxelData.uvs[0]);
+    uvs.Add(VoxelData.uvs[1]);
+    uvs.Add(VoxelData.uvs[2]);
+    uvs.Add(VoxelData.uvs[3]);
+    */
+
   }
 
   public void Populate(Vector2 pos)

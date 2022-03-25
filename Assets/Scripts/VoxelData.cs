@@ -8,6 +8,12 @@ public static class VoxelData
   public static readonly int dungeonSize = 80;
   public static readonly int chunkWidth = 16;
 
+  public static readonly int TextureAtlasSizeInBlocks = 4;
+  public static float NormalizedBlockTextureSize
+  {
+    get { return 1.0f / (float)TextureAtlasSizeInBlocks; }
+  }
+
   public static readonly Vector3[] voxelVerts = new Vector3[8] {
     new Vector3(0, 0, 0), // 0
     new Vector3(1, 0, 0), // 1
@@ -20,7 +26,7 @@ public static class VoxelData
     new Vector3(0, 1, 1), // 7
     };
 
-    public static readonly int[,] voxelTriangles = new int[6, 4] {
+  public static readonly int[,] voxelTriangles = new int[6, 4] {
       {0, 3, 1, 2}, //0 back face
       {5, 6, 4, 7}, //1 front face
       {7, 3, 6, 2}, //2 top face
@@ -30,7 +36,7 @@ public static class VoxelData
     };
 
 
-    public static readonly Vector2[] uvs = new Vector2[4] {
+  public static readonly Vector2[] uvs = new Vector2[4] {
       new Vector2(0, 0),
       new Vector2(0, 1),
       new Vector2(1, 0),

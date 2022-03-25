@@ -63,7 +63,7 @@ MonoBehaviour:
         reflectionBlur: 3.84
         reflectBackfaces: 0
       intensity:
-        reflectionMultiplier: 1.46
+        reflectionMultiplier: 0.71
         fadeDistance: 100
         fresnelFade: 1
         fresnelFadePower: 1
@@ -101,8 +101,8 @@ MonoBehaviour:
     m_Enabled: 1
     m_Settings:
       bloom:
-        intensity: 1.31
-        threshold: 0.7
+        intensity: 0.93
+        threshold: 0.9
         softKnee: 0.5
         radius: 4
         antiFlicker: 0

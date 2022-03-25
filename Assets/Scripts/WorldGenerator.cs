@@ -8,8 +8,13 @@ public class WorldGenerator : MonoBehaviour
   public GameObject chunkObject;
   List<MapTile> tiles = new List<MapTile>();
   public GameObject playerObject;
+  public GameObject door;
   Vector3 startPos;
 
+  public Material material;
+  public GameObject roomLight;
+
+  List<Vector2> templateDoors = new List<Vector2>();
 
   const int MAX_LEAF_SIZE = 20 * 3;
   List<Leaf> _leafs = new List<Leaf>();
@@ -42,7 +47,7 @@ public class WorldGenerator : MonoBehaviour
     }
   }
 
-  void dig(int x1, int y1, int x2, int y2, bool roomDigging)
+  void dig(int x1, int y1, int x2, int y2)
   {
     //swapataan
     if (x2 < x1)
@@ -59,13 +64,25 @@ public class WorldGenerator : MonoBehaviour
       y1 = tmp;
     }
 
-    //bool lastWasWalkable = false;
+    bool lastWasWalkable = false;
     for (int tilex = x1; tilex <= x2; tilex++)
     {
       for (int tiley = y1; tiley <= y2; tiley++)
       {
         if (tilex > 0 && tiley > 0 && tilex < VoxelData.dungeonSize && tiley < VoxelData.dungeonSize)
         {
+          int index = tilex + tiley * VoxelData.dungeonSize;
+
+          if (tiles[index].canWalk == false && lastWasWalkable == true &&
+          (x1 == x2 || y1 == y2)
+        )
+          {
+            this.templateDoors.Add(new Vector2(tilex, tiley));
+            Debug.Log("door added to " + tilex + ", " + tiley);
+          }
+
+          lastWasWalkable = tiles[tilex + tiley * VoxelData.dungeonSize].canWalk;
+
           tiles[tilex + tiley * VoxelData.dungeonSize].canWalk = true;
           tiles[tilex + tiley * VoxelData.dungeonSize].createMe = true;
 
@@ -87,13 +104,17 @@ public class WorldGenerator : MonoBehaviour
 
   void createRoom(bool first, int x1, int y1, int x2, int y2)
   {
-    dig(x1, y1, x2, y2, true);
+    dig(x1, y1, x2, y2);
 
     if (first)
     {
       startPos = new Vector3((x1 + x2) / 2, 0, (y1 + y2) / 2);
       playerObject.GetComponent<PlayerController>().SetPosition(startPos);
     }
+
+    Vector3 lampPos = new Vector3((x1 + x2) / 2, 0.75f, (y1 + y2) / 2);
+    Instantiate(roomLight, lampPos, Quaternion.identity);
+
   }
 
 
@@ -146,7 +167,7 @@ public class WorldGenerator : MonoBehaviour
 
       if (l.leftChild == null || l.rightChild == null)
       {
-        createRoom(firstRoom, l.room.x + 1, l.room.y + 1, l.room.x + l.room.w - 1, l.room.y + l.room.h - 1);
+        createRoom(firstRoom, l.room.x, l.room.y , l.room.x + l.room.w - 1, l.room.y + l.room.h - 1);
         firstRoom = false;
       }
     }
@@ -157,10 +178,22 @@ public class WorldGenerator : MonoBehaviour
       Leaf l = _leafs[i];
       //vielä käytävät
       for (int k = 0; k < l.halls.Count; k++)
-        dig(l.halls[k].x, l.halls[k].y, l.halls[k].x + l.halls[k].w, l.halls[k].y + l.halls[k].h, false);
+      {
+        dig(l.halls[k].x, l.halls[k].y, l.halls[k].x + l.halls[k].w, l.halls[k].y + l.halls[k].h);
+      }
     }
 
 
+    for (int i = 0; i < templateDoors.Count; i++)
+    {
+      AddDoor(templateDoors[i]);
+    }
+
+  }
+
+  void AddDoor(Vector2 p)
+  {
+    Instantiate(door, new Vector3(p.x, 0, p.y), Quaternion.identity);
   }
 
   public bool CanWalk(int x, int y)
@@ -199,3 +232,5 @@ public class WorldGenerator : MonoBehaviour
   }
 
 }
+
+
