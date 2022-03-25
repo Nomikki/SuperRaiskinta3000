@@ -9,6 +9,11 @@ public class PlayerController : MonoBehaviour
   public float mouseSensitivity = 1.0f;
   Camera cam;
   Rigidbody body;
+  public GameObject flashlight;
+  public float lightTurningSpeed = 20.0f;
+  public float lightMovingSpeed = 15.0f;
+
+
 
   Vector2 lookAt;
 
@@ -45,11 +50,24 @@ public class PlayerController : MonoBehaviour
     lookAt.y += mouseY * mouseSensitivity;
 
     lookAt.x = Mathf.Repeat(lookAt.x, 360);
-    lookAt.y = Mathf.Clamp(lookAt.y,  -80, 80);
+    lookAt.y = Mathf.Clamp(lookAt.y, -80, 80);
 
     transform.rotation = Quaternion.Euler(0, lookAt.x, 0);
 
     cam.transform.rotation = Quaternion.Euler(lookAt.y, lookAt.x, 0);
+  }
+
+  void HandleFlashlight()
+  {
+
+    Vector3 lpos = flashlight.transform.position;
+    Vector3 lrot = flashlight.transform.rotation.eulerAngles;
+
+    lpos += (body.position - lpos) * Time.deltaTime * lightMovingSpeed;
+    lrot.x = Mathf.LerpAngle(lrot.x, lookAt.y, lightTurningSpeed * Time.deltaTime);
+    lrot.y = Mathf.LerpAngle(lrot.y, lookAt.x, lightTurningSpeed * Time.deltaTime);
+
+    flashlight.transform.SetPositionAndRotation(lpos, Quaternion.Euler(lrot));
   }
 
   // Update is called once per frame
@@ -57,6 +75,7 @@ public class PlayerController : MonoBehaviour
   {
     HandleMovement();
     HandleRotations();
+    HandleFlashlight();
 
   }
 
@@ -71,4 +90,5 @@ public class PlayerController : MonoBehaviour
     body.velocity = Vector3.zero;
   }
 }
+
 
