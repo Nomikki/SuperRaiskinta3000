@@ -160,18 +160,37 @@ public class WorldGenerator : MonoBehaviour
 
   }
 
+  public bool CanWalk(int x, int y)
+  {
+    if (x >= 0 && y >= 0 && x < VoxelData.dungeonSize && y < VoxelData.dungeonSize)
+      return tiles[x + y * VoxelData.dungeonSize].canWalk;
+
+    return false;
+  }
+
+  public bool CreateMe(int x, int y)
+  {
+    if (x >= 0 && y >= 0 && x < VoxelData.dungeonSize && y < VoxelData.dungeonSize)
+      return tiles[x + y * VoxelData.dungeonSize].createMe;
+
+    return false;
+  }
+
   void building()
   {
     //create some chunks
     int numOfChunks = (int)Mathf.Ceil((float)(VoxelData.dungeonSize / (float)VoxelData.chunkWidth));
 
 
-    for (int y = 0; y < numOfChunks; y++)
+    for (int z = 0; z < numOfChunks; z++)
     {
       for (int x = 0; x < numOfChunks; x++)
       {
         GameObject gob = Instantiate(chunkObject, Vector3.zero, Quaternion.identity);
-        gob.name = "chunk " + x + ", " + y;
+        gob.name = "chunk " + x + ", " + z;
+        Chunk chunk = gob.GetComponent<Chunk>();
+        chunk.worldGenerator = this;
+        chunk.Populate(new Vector2(x * VoxelData.chunkWidth, z * VoxelData.chunkWidth));
       }
     }
 

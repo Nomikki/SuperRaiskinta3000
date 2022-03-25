@@ -21,12 +21,12 @@ public static class VoxelData
     };
 
     public static readonly int[,] voxelTriangles = new int[6, 4] {
-      {0, 3, 1, 2},
-      {5, 6, 4, 7},
-      {3, 7, 2, 6},
-      {1, 5, 0, 4},
-      {4, 7, 0, 3},
-      {1, 2, 5, 6},
+      {0, 3, 1, 2}, //0 back face
+      {5, 6, 4, 7}, //1 front face
+      {7, 3, 6, 2}, //2 top face
+      {5, 1, 4, 0}, //3 bottom face
+      {4, 7, 0, 3}, //4 left face
+      {1, 2, 5, 6}, //5 right face
     };
 
 
