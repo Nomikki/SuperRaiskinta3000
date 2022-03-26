@@ -53,8 +53,8 @@ public class WorldGenerator : MonoBehaviour
 
   void dig(int x1, int y1, int x2, int y2)
   {
-    Debug.Log("!");
-    Debug.LogFormat("dig: {0}, {1}, {2}, {3}", x1, y1, x2, y2);
+    //Debug.Log("!");
+    //Debug.LogFormat("dig: {0}, {1}, {2}, {3}", x1, y1, x2, y2);
 
     //swapataan
     if (x2 < x1)
@@ -148,7 +148,7 @@ public class WorldGenerator : MonoBehaviour
 
   void generateBSP()
   {
-    //int levelSeed = 2;
+    //int levelSeed = 1;
     //Random.InitState(levelSeed);
 
     int maxSplitLevel = Random.Range(4, 8);
@@ -167,8 +167,7 @@ public class WorldGenerator : MonoBehaviour
     int lastY = 0;
 
     fillWithWalls();
-    Debug.LogFormat("rooms: {0}", root.rooms.Count);
-
+    //Debug.LogFormat("rooms: {0}", root.rooms.Count);
 
     int spawnRoomIndex = Random.Range(0, root.rooms.Count - 1);
 
