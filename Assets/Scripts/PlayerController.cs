@@ -124,7 +124,11 @@ public class PlayerController : MonoBehaviour
       {
         if (hitInfo.collider.tag == "door")
         {
-          hitInfo.collider.transform.parent.parent.GetComponent<doorController>().Open();
+          if (hitInfo.collider.transform.parent && hitInfo.collider.transform.parent.parent)
+          {
+            if (hitInfo.collider.transform.parent.parent.GetComponent<doorController>())
+              hitInfo.collider.transform.parent.parent.GetComponent<doorController>().Open();
+          }
         }
       }
     }
