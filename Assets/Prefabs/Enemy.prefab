@@ -76,11 +76,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6324c6c32841924ba39ae514c1016c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpPool: 100
+  hpPool: 20
   movingSpeed: 1
-  turningSpeed: 2
+  turningSpeed: 5
+  ammo: {fileID: 9173003785347988270, guid: aaddd36d50523764b97e8ae3c3c78ab2, type: 3}
   bloodParticles: {fileID: 1375957887812690555, guid: b2f9e83913e0b9a4a98bde84cdc240ee, type: 3}
   BigBloodParticles: {fileID: 1375957887812690555, guid: d106bd3b7b9248240870d7f387bd9a74, type: 3}
+  ammoPerSecond: 0.5
 --- !u!1001 &908642835343325946
 PrefabInstance:
   m_ObjectHideFlags: 0

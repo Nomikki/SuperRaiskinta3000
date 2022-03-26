@@ -7,8 +7,11 @@ public class EnemyController : MonoBehaviour
   public float hpPool = 100;
   public float movingSpeed = 1.0f;
   public float turningSpeed = 2.0f;
+  public GameObject ammo;
   public ParticleSystem bloodParticles;
   public ParticleSystem BigBloodParticles;
+  public float ammoPerSecond = 2;
+  float ammoTimer = 0;
   float reactionTimer = 0.0f;
 
 
@@ -89,13 +92,23 @@ public class EnemyController : MonoBehaviour
       targetPosition = player.GetPosition();
       if (canSeePlayer())
       {
-        moving = true;
+        Debug.Log("Can see player");
         reactionTimer = 0.5f;
+
+        if (Random.Range(0, 10) > 2)
+        {
+          Debug.Log("Shoot!");
+          shoot();
+        }
+        else
+        {
+          moving = true;
+        }
       }
       else
       {
 
-        if (Random.Range(0, 10) > 3)
+        if (Random.Range(0, 10) > 6)
         {
           moving = true;
         }
@@ -116,17 +129,31 @@ public class EnemyController : MonoBehaviour
     }
   }
 
+  void shoot()
+  {
+    if (ammoTimer <= 0)
+    {
+      GameObject gob = Instantiate(ammo, transform.position + transform.forward, transform.rotation);
+      gob.GetComponentInChildren<missile>().shoot(new Vector3(0, targetRotation, 0), gameObject);
+
+      ammoTimer = 1.0f / ammoPerSecond;
+    }
+  }
+
   // Update is called once per frame
   void Update()
   {
     HandleMovement();
     Idle();
+
     reactionTimer -= Time.deltaTime;
+    ammoTimer -= Time.deltaTime;
   }
 
   bool canSeePlayer()
   {
-    Vector3 direction = body.position - player.GetPosition();
+    Vector3 direction = player.GetPosition() - body.position;
+    direction.y = 0;
     direction.Normalize();
 
     RaycastHit hitInfo;
