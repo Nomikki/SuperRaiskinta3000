@@ -14,13 +14,12 @@ public class WorldGenerator : MonoBehaviour
 
   public Material material;
   public GameObject roomLight;
-
   List<Vector2> templateDoors = new List<Vector2>();
 
-  const int MAX_LEAF_SIZE = 20 * 3;
-  List<Leaf> _leafs = new List<Leaf>();
-  Leaf root;
+  const int ROOM_MAX_SIZE = 5;
+  const int ROOM_MIN_SIZE = 4;
 
+  public BspGenerator root = null;
   // Use this for initialization
   void Start()
   {
@@ -29,7 +28,8 @@ public class WorldGenerator : MonoBehaviour
     minimap.worldGenerator = this;
     minimap.GenerateMinimap();
     building();
-    
+    playerObject.GetComponent<PlayerController>().SetPosition(startPos);
+
   }
 
   void initAll()
@@ -53,6 +53,9 @@ public class WorldGenerator : MonoBehaviour
 
   void dig(int x1, int y1, int x2, int y2)
   {
+    Debug.Log("!");
+    Debug.LogFormat("dig: {0}, {1}, {2}, {3}", x1, y1, x2, y2);
+
     //swapataan
     if (x2 < x1)
     {
@@ -82,7 +85,6 @@ public class WorldGenerator : MonoBehaviour
         )
           {
             this.templateDoors.Add(new Vector2(tilex, tiley));
-            //Debug.Log("door added to " + tilex + ", " + tiley);
           }
 
           lastWasWalkable = tiles[tilex + tiley * VoxelData.dungeonSize].canWalk;
@@ -106,105 +108,119 @@ public class WorldGenerator : MonoBehaviour
   }
 
 
-  void createRoom(bool first, int x1, int y1, int x2, int y2)
+  void createRoom(int x1, int y1, int x2, int y2)
   {
     dig(x1, y1, x2, y2);
-
-    if (first)
-    {
-      startPos = new Vector3((x1 + x2) / 2, 0, (y1 + y2) / 2);
-      playerObject.GetComponent<PlayerController>().SetPosition(startPos);
-    }
 
     Vector3 lampPos = new Vector3((x1 + x2) / 2, 0.75f, (y1 + y2) / 2);
     Instantiate(roomLight, lampPos, Quaternion.identity);
 
   }
 
+  void makeRoomWithCorridors(Rectangle temproom)
+  {
+    Rectangle room = temproom;
+    if (room.w <= 0) room.w = 1;
+    if (room.h <= 0) room.h = 1;
+    if (room.x <= 0) room.x = 1;
+    if (room.y <= 0) room.y = 1;
 
+    createRoom(
+      room.x,
+      room.y,
+      room.x + room.w - 2,
+      room.y + room.h - 2
+    );
+  }
+
+  void fillWithWalls()
+  {
+    for (int y = 0; y < VoxelData.dungeonSize; y++)
+    {
+      for (int x = 0; x < VoxelData.dungeonSize; x++)
+      {
+        int index = x + y * VoxelData.dungeonSize;
+        this.tiles[index].canWalk = false;
+
+      }
+    }
+  }
 
   void generateBSP()
   {
+    //int levelSeed = 2;
+    //Random.InitState(levelSeed);
 
-    int _sprMapX = VoxelData.dungeonSize - 10;
-    int _sprMapY = VoxelData.dungeonSize - 10;
+    int maxSplitLevel = Random.Range(4, 8);
+    List<Rectangle> corridors = new List<Rectangle>();
 
-    root = new Leaf(10, 10, _sprMapX, _sprMapY);
+    tiles = new List<MapTile>();
+    tiles.Clear();
+    for (int y = 0; y < VoxelData.dungeonSize; y++)
+      for (int x = 0; x < VoxelData.dungeonSize; x++)
+        tiles.Add(new MapTile());
 
-    _leafs.Clear();
-    _leafs.Add(root);
 
-    bool did_split = true;
-    // we loop through every Leaf in our Vector over and over again, until no more Leafs can be split.
-    while (did_split)
+    root = new BspGenerator(0, 0, VoxelData.dungeonSize, VoxelData.dungeonSize, maxSplitLevel);
+
+    int lastX = 0;
+    int lastY = 0;
+
+    fillWithWalls();
+    Debug.LogFormat("rooms: {0}", root.rooms.Count);
+
+
+    int spawnRoomIndex = Random.Range(0, root.rooms.Count - 1);
+
+    for (int i = 0; i < root.rooms.Count; i++)
     {
-      did_split = false;
+      Rectangle tempRoom = root.rooms[i];
+      tempRoom.w = (int)Random.Range(ROOM_MIN_SIZE, tempRoom.w - 2);
+      tempRoom.h = (int)Random.Range(ROOM_MIN_SIZE, tempRoom.h - 2);
 
-      for (int i = 0; i < _leafs.Count; i++)
+
+      makeRoomWithCorridors(tempRoom);
+
+      if (i > 0)
       {
-        Leaf l = _leafs[i];
+        corridors.Add(new Rectangle(lastX, lastY, tempRoom.x + tempRoom.w / 2, lastY));
+        corridors.Add(new Rectangle(tempRoom.x + tempRoom.w / 2, lastY, tempRoom.x + tempRoom.w / 2, tempRoom.y + tempRoom.h / 2));
+      }
+      lastX = tempRoom.x + tempRoom.w / 2;
+      lastY = tempRoom.y + tempRoom.h / 2;
 
-        if (l.leftChild == null && l.rightChild == null) // if this Leaf is not already split...
-        {
-          // if this Leaf is too big, or 75% chance...
-          if (l.width > MAX_LEAF_SIZE || l.height > MAX_LEAF_SIZE || Random.Range(0, 100) > 25)
-          {
-            if (l.split()) // split the Leaf!
-            {
-              // if we did split, push the child leafs to the Vector so we can loop into them next
-              _leafs.Add(l.leftChild);
-              _leafs.Add(l.rightChild);
-              did_split = true;
-            }
-          }
-        }
+      if (i == spawnRoomIndex)
+      {
+        startPos.x = lastX;
+        startPos.y = 0;
+        startPos.z = lastY;
       }
     }
 
-    _leafs[0].createRooms();
-
-    //-------------
-    bool firstRoom = true;
-    for (int i = 0; i < _leafs.Count; i++)
+    for (int l = 0; l < corridors.Count; l++)
     {
-      Leaf l = _leafs[i];
-
-      if (l.leftChild == null || l.rightChild == null)
-      {
-        createRoom(firstRoom, l.room.x, l.room.y , l.room.x + l.room.w - 1, l.room.y + l.room.h - 1);
-        firstRoom = false;
-      }
+      dig(corridors[l].x, corridors[l].y, corridors[l].w, corridors[l].h);
     }
-
-
-    for (int i = 0; i < _leafs.Count; i++)
-    {
-      Leaf l = _leafs[i];
-      //vielä käytävät
-      for (int k = 0; k < l.halls.Count; k++)
-      {
-        dig(l.halls[k].x, l.halls[k].y, l.halls[k].x + l.halls[k].w, l.halls[k].y + l.halls[k].h);
-      }
-    }
-
 
     for (int i = 0; i < templateDoors.Count; i++)
     {
       AddDoor(templateDoors[i]);
     }
-
   }
 
   void AddDoor(Vector2 p)
   {
-    
+
     //add door, if its between walls
-    if (CanWalk ((int)p.x - 1, (int)p.y) == false && CanWalk((int)p.x + 1, (int)p.y) == false) {
-      Instantiate(door, new Vector3(p.x + 0.5f, 0, p.y + 0.5f), Quaternion.Euler(0, 0, 0));  
+    if (CanWalk((int)p.x - 1, (int)p.y) == false && CanWalk((int)p.x + 1, (int)p.y) == false)
+    {
+      Instantiate(door, new Vector3(p.x + 0.5f, 0, p.y + 0.5f), Quaternion.Euler(0, 0, 0));
     }
-    if (CanWalk((int)p.x, (int)p.y - 1) == false && CanWalk((int)p.x, (int)p.y + 1) == false) {
-      Instantiate(door, new Vector3(p.x + 0.5f, 0, p.y + 0.5f), Quaternion.Euler(0, 90, 0));  
+    if (CanWalk((int)p.x, (int)p.y - 1) == false && CanWalk((int)p.x, (int)p.y + 1) == false)
+    {
+      Instantiate(door, new Vector3(p.x + 0.5f, 0, p.y + 0.5f), Quaternion.Euler(0, 90, 0));
     }
+
 
   }
 
@@ -244,5 +260,3 @@ public class WorldGenerator : MonoBehaviour
   }
 
 }
-
-

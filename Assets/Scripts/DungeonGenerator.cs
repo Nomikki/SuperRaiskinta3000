@@ -25,333 +25,164 @@ public class Rectangle
     w = _w;
     h = _h;
   }
-};
 
-public class BSPPoint
-{
-  public int x, y;
-
-  public BSPPoint()
+  public float GetCenterX()
   {
-    x = 0;
-    y = 0;
+    return x + (w / 2);
   }
 
-  public BSPPoint(int _x, int _y)
+  public float GetCenterY()
   {
-    x = _x;
-    y = _y;
+    return y + (h / 2);
   }
 };
 
-class Leaf
+
+public class BspNode : Rectangle
 {
-  private const int MIN_LEAF_SIZE = 10;
+  public BspNode A = null;
+  public BspNode B = null;
+  public Rectangle leaf;
 
-  public int y;
-  public int x;
-  public int width;
-  public int height; // the position and size of this Leaf
-
-  public Leaf leftChild = null; // the Leaf's left child Leaf
-  public Leaf rightChild = null; // the Leaf's right child Leaf
-  public Rectangle room = new Rectangle(); // the room that is inside this Leaf
-                                           //var halls:Vector.; // hallways to connect this Leaf to other Leafs
-
-  bool hasRooms;
-
-  //std::vector<Rectangle> halls;
-  public List<Rectangle> halls = new List<Rectangle>();
-
-
-  public Leaf(int X, int Y, int Width, int Height)
+  public BspNode(Rectangle _leaf) : base(_leaf.x, _leaf.y, _leaf.w, _leaf.h)
   {
-
-    leftChild = null;
-    rightChild = null;
-
-    // initialize our leaf
-    init(X, Y, Width, Height);
+    this.leaf = _leaf;
   }
 
-  public void init(int X, int Y, int Width, int Height)
+  public List<BspNode> GetLeafs()
   {
-    // initialize our leaf
-    leftChild = null;
-    rightChild = null;
-    x = X;
-    y = Y;
-    width = Width;
-    height = Height;
-
-    if (height < 3) height = 3;
-    if (width < 3) width = 3;
-
-  }
-
-  Leaf()
-  {
-    leftChild = null;
-    rightChild = null;
-    x = 0;
-    y = 0;
-    width = 3;
-    height = 3;
-  }
-
-  public void clear()
-  {
-
-    halls.Clear();
-
-
-    if (leftChild != null)
+    List<BspNode> l = new List<BspNode>();
+    if (A == null || B == null)
     {
-      leftChild.clear();
-    }
-    if (rightChild != null)
-    {
-      rightChild.clear();
-    }
-
-    //delete leftChild;
-    //delete rightChild;
-    leftChild = null;
-    rightChild = null;
-
-
-  }
-
-
-  ~Leaf()
-  {
-
-    //printf("d");
-  }
-
-
-  public bool split()
-  {
-    // begin splitting the leaf into two children
-    if (leftChild != null || rightChild != null)
-      return false; // we're already split! Abort!
-
-    // determine direction of split
-    // if the width is >25% larger than height, we split vertically
-    // if the height is >25% larger than the width, we split horizontally
-    // otherwise we split randomly
-
-    bool splitH = false;
-    if (Random.Range(0, 100) > 50)
-      splitH = true;
-
-    if (width > height && (float)(width / height) >= 1.25f)
-      splitH = false;
-    else if (height > width && (float)(height / width) >= 1.25f)
-      splitH = true;
-
-    int max = (splitH ? height : width) - MIN_LEAF_SIZE; // determine the maximum height or width
-
-    if (max <= MIN_LEAF_SIZE)
-      return false; // the area is too small to split any more...
-
-    int k = max - MIN_LEAF_SIZE;
-    int splitti = MIN_LEAF_SIZE + (Random.Range(0, k - 1)); // determine where we're going to split
-
-    // create our left and right children based on the direction of the split
-    if (splitH)
-    {
-      leftChild = new Leaf(x, y, width, splitti);
-      rightChild = new Leaf(x, y + splitti, width, height - splitti);
+      BspNode c = new BspNode(leaf);
+      l.Add(c);
     }
     else
     {
-      leftChild = new Leaf(x, y, splitti, height);
-      rightChild = new Leaf(x + splitti, y, width - splitti, height);
+      List<BspNode> lA = A.GetLeafs();
+      foreach (BspNode aa in lA)
+        l.Add(aa);
+
+      List<BspNode> lB = B.GetLeafs();
+      foreach (BspNode bb in lB)
+        l.Add(bb);
     }
 
-    return true; // split successful!
+    return l;
+  }
+};
+
+public class BspGenerator
+{
+  public List<Rectangle> rooms;
+  public List<Rectangle> doorPlaces;
+  public List<Rectangle> tempRooms;
+
+  public BspNode tree;
+
+  int maxLevel = 0;
+  Rectangle rootContainer;
+
+  int rows = 0;
+  int cols = 0;
+
+  public BspGenerator(int x, int y, int w, int h, int maxLevel)
+  {
+    rootContainer = new Rectangle(x + 1, y + 1, w - 2, h - 2);
+    rows = h;
+    cols = w;
+
+    this.maxLevel = maxLevel;
+    rooms = new List<Rectangle>();
+    rooms.Clear();
+
+    doorPlaces = new List<Rectangle>();
+    doorPlaces.Clear();
+
+    tempRooms = new List<Rectangle>();
+    tempRooms.Clear();
+
+    tree = Devide(rootContainer, 0);
+
+    List<BspNode> bl = tree.GetLeafs();
+    foreach (BspNode b in bl)
+      rooms.Add(b);
+
+    CreateRooms();
+    ConnectRooms(tree);
   }
 
-
-  public void createRooms()
+  void CreateRooms()
   {
-    // this function generates all the rooms and hallways for this Leaf and all of its children.
-    if (leftChild != null || rightChild != null)
+    foreach (Rectangle room in rooms)
     {
-      hasRooms = false;
+      int w = (int)Random.Range(room.w * 0.5f, room.w * 0.9f);
+      int h = (int)Random.Range(room.h * 0.5f, room.h * 0.9f);
+      int x = (int)Random.Range(room.x, room.x + room.w - w);
+      int y = (int)Random.Range(room.y, room.y + room.h - h);
 
-      // this leaf has been split, so go into the children leafs
-      if (leftChild != null)
-      {
-        leftChild.createRooms();
-      }
-      if (rightChild != null)
-      {
-        rightChild.createRooms();
-      }
+      Rectangle rect = new Rectangle(x, y, x + w, y + h);
+      this.tempRooms.Add(rect);
+    }
+  }
 
-      if (leftChild != null && rightChild != null)
-      {
-        createHall(leftChild.getRoom(), rightChild.getRoom());
-        //printf("A");
-      }
+  bool ConnectRooms(BspNode node)
+  {
+    if (node.A == null || node.B == null)
+      return false;
+    ConnectRooms(node.A);
+    ConnectRooms(node.B);
 
+    return true;
+  }
+
+  (Rectangle a, Rectangle b) RandomSplit(Rectangle container)
+  {
+    Rectangle r1;
+    Rectangle r2;
+
+    bool splitVertical = false;
+
+    if (container.w > container.h && container.w / container.h > 0.05)
+    {
+      splitVertical = true;
     }
     else
     {
-      // this Leaf is the ready to make a room
-      // the room can be between 3 x 3 tiles to the size of the leaf - 2.
-      int _ww = 3 + (int)Random.Range(0, width - 3);
-      int _hh = 3 + (int)Random.Range(0, height - 3);
-      BSPPoint roomSize = new BSPPoint(_ww, _hh);
-
-
-
-      // place the room within the Leaf, but don't put it right
-      // against the side of the Leaf (that would merge rooms together)
-      //roomPos = new Point(Registry.randomNumber(1, width - roomSize.x - 1), Registry.randomNumber(1, height - roomSize.y - 1));
-
-      _ww = Random.Range(0, roomSize.x - width - 2);
-      _hh = Random.Range(0, roomSize.y - height - 2);
-
-      BSPPoint roomPos = new BSPPoint(_ww, _hh);
-
-      //room = new Rectangle(x + roomPos.x, y + roomPos.y, roomSize.x, roomSize.y);
-      room.x = x + roomPos.x;
-      room.y = y + roomPos.y;
-      room.w = roomSize.x;
-      room.h = roomSize.y;
-      hasRooms = true;
+      splitVertical = false;
     }
-  }
 
-
-  Rectangle getRoom()
-  {
-    // iterate all the way through these leafs to find a room, if one exists.
-    if (hasRooms)
-      return room;
+    if (splitVertical)
+    {
+      int w = (int)Random.Range(container.w * 0.3f, container.w * 0.6f);
+      r1 = new Rectangle(container.x, container.y, w, container.h);
+      r2 = new Rectangle(container.x + w, container.y, container.w - w, container.h);
+    }
     else
     {
-      Rectangle lRoom = null;
-      Rectangle rRoom = null;
-
-      if (leftChild != null)
-      {
-        lRoom = leftChild.getRoom();
-      }
-      if (rightChild != null)
-      {
-        rRoom = rightChild.getRoom();
-      }
-      if (lRoom == null && rRoom == null)
-        return null;
-      else if (rRoom == null)
-        return lRoom;
-      else if (lRoom == null)
-        return rRoom;
-      else if (Random.Range(0, 100) > 50)
-        return lRoom;
-      else
-        return rRoom;
+      int h = (int)Random.Range(container.w * 0.3f, container.w * 0.6f);
+      r1 = new Rectangle(container.x, container.y, container.w, h);
+      r2 = new Rectangle(container.x, container.y + h, container.w, container.h - h);
     }
+
+    return (r1, r2);
   }
 
-
-  void createHall(Rectangle l, Rectangle r)
+  BspNode Devide(Rectangle container, int level)
   {
-    // now we connect these two rooms together with hallways.
-    // this looks pretty complicated, but it's just trying to figure out which point is where and then either draw a straight line, or a pair of lines to make a right-angle to connect them.
-    // you could do some extra logic to make your halls more bendy, or do some more advanced things if you wanted.
+    BspNode root = new BspNode(container);
 
-    BSPPoint point1 = new BSPPoint(l.x + 1 + (Random.Range(0, l.w - 3)), l.y + 1 + (Random.Range(0, l.h - 3)));
-    BSPPoint point2 = new BSPPoint(r.x + 1 + (Random.Range(0, l.w - 3)), r.y + 1 + (Random.Range(0, l.h - 3)));
-
-    int w = point2.x - point1.x;
-    int h = point2.y - point1.y;
-
-
-    if (w < 0)
+    if (level < maxLevel)
     {
-      if (h < 0)
-      {
-        if (Random.Range(0, 100) < 50)
-        {
-          halls.Add(new Rectangle(point2.x, point1.y, Mathf.Abs(w), 0));
-          halls.Add(new Rectangle(point2.x, point2.y, 0, Mathf.Abs(h)));
-        }
-        else
-        {
-          halls.Add(new Rectangle(point2.x, point2.y, Mathf.Abs(w), 0));
-          halls.Add(new Rectangle(point1.x, point2.y, 0, Mathf.Abs(h)));
-        }
-      }
-      else if (h > 0)
-      {
-        if (Random.Range(0, 100) < 50)
-        {
-          halls.Add(new Rectangle(point2.x, point1.y, Mathf.Abs(w), 0));
-          halls.Add(new Rectangle(point2.x, point1.y, 0, Mathf.Abs(h)));
-        }
-        else
-        {
-          halls.Add(new Rectangle(point2.x, point2.y, Mathf.Abs(w), 0));
-          halls.Add(new Rectangle(point1.x, point1.y, 0, Mathf.Abs(h)));
-        }
-      }
-      else // if (h == 0)
-      {
-        halls.Add(new Rectangle(point2.x, point2.y, Mathf.Abs(w), 0));
-      }
+      (Rectangle a, Rectangle b) = RandomSplit(container);
+      root.A = this.Devide(a, level + 1);
+      root.B = this.Devide(b, level + 1);
     }
-    else if (w > 0)
-    {
-      if (h < 0)
-      {
-        if (Random.Range(0, 100) > 50)
-        {
-          halls.Add(new Rectangle(point1.x, point2.y, Mathf.Abs(w), 0));
-          halls.Add(new Rectangle(point1.x, point2.y, 0, Mathf.Abs(h)));
-        }
-        else
-        {
-          halls.Add(new Rectangle(point1.x, point1.y, Mathf.Abs(w),0));
-          halls.Add(new Rectangle(point2.x, point2.y, 0, Mathf.Abs(h)));
-        }
-      }
-      else if (h > 0)
-      {
-        if (Random.Range(0, 100) < 50)
-        {
-          halls.Add(new Rectangle(point1.x, point1.y, Mathf.Abs(w), 0));
-          halls.Add(new Rectangle(point2.x, point1.y, 0, Mathf.Abs(h)));
-        }
-        else
-        {
-          halls.Add(new Rectangle(point1.x, point2.y, Mathf.Abs(w), 0));
-          halls.Add(new Rectangle(point1.x, point1.y, 0, Mathf.Abs(h)));
-        }
-      }
-      else // if (h == 0)
-      {
-        halls.Add(new Rectangle(point1.x, point1.y, Mathf.Abs(w), 0));
-      }
-    }
-    else // if (w == 0)
-    {
-      if (h < 0)
-      {
-        halls.Add(new Rectangle(point2.x, point2.y, 0, Mathf.Abs(h)));
-      }
-      else if (h > 0)
-      {
-        halls.Add(new Rectangle(point1.x, point1.y, 0, Mathf.Abs(h)));
-      }
-    }
+
+    return root;
+
   }
-
-}
+};
 
 
 
@@ -367,10 +198,6 @@ public class MapTile
   {
     canWalk = false;
     explored = false;
-    secretWall = false;
-    inFov = false;
-    createMe = false;
-
   }
 }
 

@@ -58,13 +58,13 @@ public class Minimap : MonoBehaviour
   {
     if (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.M))
     {
-      if (img.gameObject.active)
+      if (img.gameObject.activeInHierarchy)
         img.gameObject.SetActive(false);
       else
         img.gameObject.SetActive(true);
     }
 
-    if (img.gameObject.active)
+    if (img.gameObject.activeInHierarchy)
     {
       timer += Time.deltaTime;
       if (timer > refreshTime)
