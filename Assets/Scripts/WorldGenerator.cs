@@ -9,6 +9,7 @@ public class WorldGenerator : MonoBehaviour
   List<MapTile> tiles = new List<MapTile>();
   public GameObject playerObject;
   public GameObject door;
+  public GameObject enemyObject;
   public Minimap minimap;
   Vector3 startPos;
 
@@ -25,6 +26,7 @@ public class WorldGenerator : MonoBehaviour
   {
     initAll();
     generateBSP();
+    //generateTestLevel();
     minimap.worldGenerator = this;
     minimap.GenerateMinimap();
     building();
@@ -146,6 +148,26 @@ public class WorldGenerator : MonoBehaviour
     }
   }
 
+  void AddEnemy(int x, int y)
+  {
+    Instantiate(enemyObject, new Vector3(x, 0, y), Quaternion.identity);
+  }
+
+  void generateTestLevel()
+  {
+     tiles = new List<MapTile>();
+    tiles.Clear();
+    for (int y = 0; y < VoxelData.dungeonSize; y++)
+      for (int x = 0; x < VoxelData.dungeonSize; x++)
+        tiles.Add(new MapTile());
+    fillWithWalls();
+
+     startPos = new Vector3(2, 0, 2);
+     makeRoomWithCorridors(new Rectangle(0, 0, 20, 20));;
+     AddEnemy(10, 10);
+
+  }
+
   void generateBSP()
   {
     //int levelSeed = 1;
@@ -193,6 +215,8 @@ public class WorldGenerator : MonoBehaviour
         startPos.x = lastX;
         startPos.y = 0;
         startPos.z = lastY;
+      } else {
+        AddEnemy(lastX, lastY);
       }
     }
 

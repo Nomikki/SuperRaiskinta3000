@@ -181,7 +181,7 @@ public class PlayerController : MonoBehaviour
     if (recoilTime <= 0.0f)
     {
       if (gunHeat > 0)
-        gunHeat -= Time.deltaTime * 3.0f;
+        gunHeat -= Time.deltaTime * 1.5f;
       else
         gunHeat = 0;
 
@@ -217,6 +217,14 @@ public class PlayerController : MonoBehaviour
 
           recoildDirection.x = Random.Range(-1f, 1f) * gunHeat;
           recoildDirection.y = Random.Range(-1.1f, 1.3f) * gunHeat;
+
+          if (hitInfo.collider.tag == "Enemy")
+          {
+            float damageSubr = Mathf.Max(gunHeat - 1, 0) * 3.0f;
+            float damage = Mathf.Max(3.0f - damageSubr, 0.2f);
+            //Debug.Log("Make damage: " + damage);
+            hitInfo.collider.GetComponent<EnemyController>().takeDamage(damage, hitInfo.point);
+          }
         }
       }
     }
