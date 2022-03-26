@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
 
   public float movingSpeed = 1.5f;
   public float jumpForce = 1.5f;
-
+  public float activationDistance = 0.5f;
   public float mouseSensitivity = 1.0f;
   Camera cam;
   Rigidbody body;
@@ -56,6 +56,11 @@ public class PlayerController : MonoBehaviour
     body.velocity = velocity;
   }
 
+  public Vector3 GetPosition()
+  {
+    return transform.position;
+  }
+
   void HandleRotations()
   {
     float mouseX = Input.GetAxis("Mouse X");
@@ -102,6 +107,27 @@ public class PlayerController : MonoBehaviour
     HandleMovement();
     HandleRotations();
     HandleFlashlight();
+    HandleUse();
+  }
+
+  void HandleUse()
+  {
+
+    //Debug.Log("Use");
+    RaycastHit hitInfo;
+
+
+    if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitInfo, activationDistance))
+    {
+
+      if (Input.GetAxis("Use") > 0)
+      {
+        if (hitInfo.collider.tag == "door")
+        {
+          hitInfo.collider.transform.parent.parent.GetComponent<doorController>().Open();
+        }
+      }
+    }
 
   }
 

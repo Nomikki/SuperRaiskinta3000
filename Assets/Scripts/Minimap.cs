@@ -7,6 +7,7 @@ public class Minimap : MonoBehaviour
 {
   public Image img;
   public WorldGenerator worldGenerator;
+  const float refreshTime = 1.0f / 4.0f; //4 times per second
   PlayerController player;
 
   float timer = 0;
@@ -38,8 +39,6 @@ public class Minimap : MonoBehaviour
         }
 
         texture.SetPixel(x, y, color);
-
-
       }
     }
 
@@ -68,7 +67,7 @@ public class Minimap : MonoBehaviour
     if (img.gameObject.active)
     {
       timer += Time.deltaTime;
-      if (timer > 0.25f)
+      if (timer > refreshTime)
       {
         timer = 0;
         GenerateMinimap();

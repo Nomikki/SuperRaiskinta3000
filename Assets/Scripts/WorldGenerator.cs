@@ -82,7 +82,7 @@ public class WorldGenerator : MonoBehaviour
         )
           {
             this.templateDoors.Add(new Vector2(tilex, tiley));
-            Debug.Log("door added to " + tilex + ", " + tiley);
+            //Debug.Log("door added to " + tilex + ", " + tiley);
           }
 
           lastWasWalkable = tiles[tilex + tiley * VoxelData.dungeonSize].canWalk;
@@ -197,7 +197,15 @@ public class WorldGenerator : MonoBehaviour
 
   void AddDoor(Vector2 p)
   {
-    Instantiate(door, new Vector3(p.x, 0, p.y), Quaternion.identity);
+    
+    //add door, if its between walls
+    if (CanWalk ((int)p.x - 1, (int)p.y) == false && CanWalk((int)p.x + 1, (int)p.y) == false) {
+      Instantiate(door, new Vector3(p.x + 0.5f, 0, p.y + 0.5f), Quaternion.Euler(0, 0, 0));  
+    }
+    if (CanWalk((int)p.x, (int)p.y - 1) == false && CanWalk((int)p.x, (int)p.y + 1) == false) {
+      Instantiate(door, new Vector3(p.x + 0.5f, 0, p.y + 0.5f), Quaternion.Euler(0, 90, 0));  
+    }
+
   }
 
   public bool CanWalk(int x, int y)
