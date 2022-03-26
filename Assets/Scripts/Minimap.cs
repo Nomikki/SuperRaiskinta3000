@@ -57,7 +57,7 @@ public class Minimap : MonoBehaviour
 
   void Update()
   {
-    if (Input.GetKeyDown(KeyCode.Tab))
+    if (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.M))
     {
       if (img.gameObject.active)
         img.gameObject.SetActive(false);
