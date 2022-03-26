@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
   Camera cam;
   Rigidbody body;
   public GameObject flashlight;
+  public GameObject weapon;
   public float lightTurningSpeed = 20.0f;
   public float lightMovingSpeed = 15.0f;
 
@@ -22,6 +23,25 @@ public class PlayerController : MonoBehaviour
 
   public GameObject bulletDecal;
 
+  public float recoilTime = 0.0f;
+  public Vector2 recoildDirection;
+  public float gunHeat = 0.0f;
+
+  public Vector3 camStartPosition;
+  public Vector3 weaponStartPosition;
+
+
+  /*
+  Vector2[] recoilPattern = new Vector2[7] {
+    new Vector2(0.1f, 0.2f),
+    new Vector2(0, 0.3f),
+    new Vector2(0, 0),
+    new Vector2(0, 0),
+    new Vector2(0, 0),
+    new Vector2(0, 0),
+    new Vector2(0, 0),
+  };
+  */
 
   Vector2 lookAt;
 
@@ -30,6 +50,8 @@ public class PlayerController : MonoBehaviour
   {
     body = GetComponent<Rigidbody>();
     cam = Camera.main;
+    camStartPosition = cam.transform.localPosition;
+    weaponStartPosition = weapon.transform.localPosition;
     Cursor.lockState = CursorLockMode.Locked;
     Cursor.visible = false;
   }
@@ -114,6 +136,7 @@ public class PlayerController : MonoBehaviour
     HandleFlashlight();
     HandleUse();
     HandleShooting();
+    HandleRecoil();
   }
 
   void HandleUse()
@@ -138,6 +161,35 @@ public class PlayerController : MonoBehaviour
 
   }
 
+  void HandleRecoil()
+  {
+    if (recoilTime > 0.0f)
+    {
+      float sprayArea = 0.25f;
+      recoilTime -= Time.deltaTime;
+
+      //lookAt.x += (recoildDirection.x*sprayArea) * Time.deltaTime;
+      recoilTime = Mathf.Clamp(recoilTime, 0, 0.25f);
+
+      lookAt.y = Mathf.Lerp(lookAt.y, (lookAt.y - (recoildDirection.y * sprayArea)), recoilTime * 4);
+      lookAt.x = Mathf.Lerp(lookAt.x, (lookAt.x - (recoildDirection.x * sprayArea)), recoilTime * 4);
+
+      cam.transform.localPosition = camStartPosition + new Vector3(0, 0, Mathf.Lerp(recoilTime*0.2f, 0, recoilTime));
+      weapon.transform.localPosition = weaponStartPosition + new Vector3(0, 0, Mathf.Lerp(recoilTime, 0, recoilTime*4));
+    }
+
+    if (recoilTime <= 0.0f)
+    {
+      if (gunHeat > 0)
+        gunHeat -= Time.deltaTime * 3.0f;
+      else
+        gunHeat = 0;
+
+    }
+
+
+  }
+
   void HandleShooting()
   {
     RaycastHit hitInfo;
@@ -154,6 +206,17 @@ public class PlayerController : MonoBehaviour
           GameObject gob = Instantiate(bulletDecal, hitInfo.point + hitInfo.normal * 0.00001f, Quaternion.LookRotation(hitInfo.normal));
           bulletDecal.transform.up = hitInfo.normal;
           gob.transform.SetParent(hitInfo.collider.transform);
+          recoilTime = 0.25f;
+          if (gunHeat < 0)
+            gunHeat = 1.0f;
+          else
+            gunHeat += 0.2f;
+
+          if (gunHeat > 2)
+            gunHeat = 2;
+
+          recoildDirection.x = Random.Range(-1f, 1f) * gunHeat;
+          recoildDirection.y = Random.Range(-1.1f, 1.3f) * gunHeat;
         }
       }
     }
