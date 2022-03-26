@@ -149,6 +149,7 @@ public class PlayerController : MonoBehaviour
         firetimer = firerate;
         if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitInfo, 100.0f))
         {
+          //hitscan
           //Debug.Log("Hit " + hitInfo.collider.name);
           GameObject gob = Instantiate(bulletDecal, hitInfo.point + hitInfo.normal * 0.00001f, Quaternion.LookRotation(hitInfo.normal));
           bulletDecal.transform.up = hitInfo.normal;
