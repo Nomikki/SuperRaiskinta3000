@@ -17,6 +17,11 @@ public class PlayerController : MonoBehaviour
 
   public bool isGrounded = false;
 
+  const float firerate = 1.0f / 4.0f;
+  public float firetimer = 0.0f;
+
+  public GameObject bulletDecal;
+
 
   Vector2 lookAt;
 
@@ -108,14 +113,12 @@ public class PlayerController : MonoBehaviour
     HandleRotations();
     HandleFlashlight();
     HandleUse();
+    HandleShooting();
   }
 
   void HandleUse()
   {
-
-    //Debug.Log("Use");
     RaycastHit hitInfo;
-
 
     if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitInfo, activationDistance))
     {
@@ -135,6 +138,27 @@ public class PlayerController : MonoBehaviour
 
   }
 
+  void HandleShooting()
+  {
+    RaycastHit hitInfo;
+
+    if (Input.GetAxis("Fire1") > 0)
+    {
+      if (firetimer <= 0.0f)
+      {
+        firetimer = firerate;
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitInfo, 100.0f))
+        {
+          //Debug.Log("Hit " + hitInfo.collider.name);
+          GameObject gob = Instantiate(bulletDecal, hitInfo.point + hitInfo.normal * 0.00001f, Quaternion.LookRotation(hitInfo.normal));
+          bulletDecal.transform.up = hitInfo.normal;
+          gob.transform.SetParent(hitInfo.collider.transform);
+        }
+      }
+    }
+
+    firetimer -= Time.deltaTime;
+  }
 
 
   public void SetPosition(Vector3 pos)
