@@ -48,11 +48,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movingSpeed: 1.5
   jumpForce: 2.5
+  activationDistance: 0.5
   mouseSensitivity: 1
   flashlight: {fileID: 0}
+  weapon: {fileID: 0}
   lightTurningSpeed: 20
   lightMovingSpeed: 15
   isGrounded: 0
+  firetimer: 0
+  bulletDecal: {fileID: 0}
+  recoilTime: 0
+  recoildDirection: {x: 0, y: 0}
+  gunHeat: 0
+  camStartPosition: {x: 0, y: 0, z: 0}
+  weaponStartPosition: {x: 0, y: 0, z: 0}
 --- !u!54 &7716958609519562693
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -168,7 +177,6 @@ GameObject:
   - component: {fileID: 7716958610422046074}
   - component: {fileID: 7716958610422046075}
   - component: {fileID: 7716958610422046076}
-  - component: {fileID: 7716958610422046073}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -243,19 +251,6 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7716958610422046077}
   m_Enabled: 1
---- !u!114 &7716958610422046073
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7716958610422046077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  profile: {fileID: 11400000, guid: 6491d56fbf5d4ad43a751009334adb88, type: 2}
 --- !u!1001 &7716958611098367689
 PrefabInstance:
   m_ObjectHideFlags: 0
