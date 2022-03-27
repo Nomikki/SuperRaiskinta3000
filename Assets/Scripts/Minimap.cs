@@ -80,7 +80,7 @@ public class Minimap : MonoBehaviour
   {
     Color color = Color.black;
 
-    calcLos();
+
 
     for (int y = 0; y < texture.height; y++)
     {
@@ -125,15 +125,18 @@ public class Minimap : MonoBehaviour
         img.gameObject.SetActive(true);
     }
 
-    if (img.gameObject.activeInHierarchy)
+
+    timer += Time.deltaTime;
+    if (timer > refreshTime)
     {
-      timer += Time.deltaTime;
-      if (timer > refreshTime)
+      timer = 0;
+      calcLos();
+      if (img.gameObject.activeInHierarchy)
       {
-        timer = 0;
         GenerateMinimap();
       }
     }
+
 
   }
 }

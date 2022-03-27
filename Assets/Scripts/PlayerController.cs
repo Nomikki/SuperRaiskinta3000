@@ -35,6 +35,10 @@ public class PlayerController : MonoBehaviour
   public Vector3 weaponStartPosition;
 
   public TextMeshProUGUI hpText;
+  public GameObject hpTextController;
+
+  public AudioSource[] weaponAudioSource;
+  int currentAudioSource = 0;
 
 
   /*
@@ -94,7 +98,7 @@ public class PlayerController : MonoBehaviour
     }
   }
 
- 
+
 
   void HandleRotations()
   {
@@ -141,6 +145,10 @@ public class PlayerController : MonoBehaviour
   // Update is called once per frame
   void Update()
   {
+    
+  }
+
+  void FixedUpdate() {
     CheckIfTouchingGround();
     HandleMovement();
     HandleRotations();
@@ -212,14 +220,20 @@ public class PlayerController : MonoBehaviour
   void HandleShooting()
   {
     RaycastHit hitInfo;
+    firetimer -= Time.deltaTime;
 
     if (Input.GetAxis("Fire1") > 0)
     {
       if (firetimer <= 0.0f)
       {
         firetimer = firerate;
+
+
         if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitInfo, 100.0f))
         {
+
+          weaponAudioSource[currentAudioSource++].Play();
+          currentAudioSource %= weaponAudioSource.Length;
           //hitscan
           //Debug.Log("Hit " + hitInfo.collider.name);
           GameObject gob = Instantiate(bulletDecal, hitInfo.point + hitInfo.normal * 0.00001f, Quaternion.LookRotation(hitInfo.normal));
@@ -248,7 +262,7 @@ public class PlayerController : MonoBehaviour
       }
     }
 
-    firetimer -= Time.deltaTime;
+  
   }
 
 
@@ -261,7 +275,7 @@ public class PlayerController : MonoBehaviour
     body.velocity = Vector3.zero;
   }
 
-   public Vector3 GetPosition()
+  public Vector3 GetPosition()
   {
     return body.position;
   }
@@ -277,6 +291,12 @@ public class PlayerController : MonoBehaviour
       hpPool = 0;
       alive = false;
     }
+  }
+
+  public void createHitPointText(Vector3 pos, Vector3 direction, string text)
+  {
+    GameObject gob = Instantiate(hpTextController, pos, Quaternion.identity);
+    gob.GetComponent<hitpointTextController>().setText(text, GetPosition());
   }
 }
 

@@ -8,7 +8,8 @@ public enum AiState
   following,
   shooting,
   melee,
-  die
+  die,
+  dead
 };
 
 public class EnemyController : MonoBehaviour
@@ -26,6 +27,10 @@ public class EnemyController : MonoBehaviour
   public GameObject ammo;
   public ParticleSystem bloodParticles;
   public ParticleSystem BigBloodParticles;
+
+  public AudioSource idleSound;
+  public AudioSource dieSound;
+
   /*
   public float ammoPerSecond = 2;
   float ammoTimer = 0;
@@ -58,9 +63,10 @@ public class EnemyController : MonoBehaviour
 
   void OnDrawGizmosSelected()
   {
-
+    /*
     Gizmos.color = Color.red;
     Gizmos.DrawSphere(targetPosition, 0.5f);
+    */
 
   }
 
@@ -97,13 +103,20 @@ public class EnemyController : MonoBehaviour
 
   public void takeDamage(float dmg, Vector3 hitpoint)
   {
+    
 
-    hpPool -= dmg;
     GameObject gob = Instantiate(bloodParticles.gameObject, hitpoint, Quaternion.identity);
     gob.transform.parent = null;
+
+    if (state == AiState.dead)
+      return;
+    hpPool -= dmg;
+    player.createHitPointText(body.position, player.transform.forward, dmg.ToString("0.0"));
+
     if (hpPool < 0)
     {
       die();
+      return;
     }
     Vector3 direction = body.position - hitpoint;
     direction.Normalize();
@@ -169,12 +182,16 @@ public class EnemyController : MonoBehaviour
     if (canSeePlayer() == true)
     {
       HandleDistances();
+      if (idleSound.isPlaying == false)
+        idleSound.Play();
     }
   }
 
   void shoot()
   {
     //Debug.Log("shoot");
+    if (state == AiState.dead)
+      return;
 
     GameObject gob = Instantiate(ammo, body.position + transform.forward, Quaternion.identity);
     gob.GetComponentInChildren<missile>().shoot(transform.forward, gameObject);
@@ -186,7 +203,9 @@ public class EnemyController : MonoBehaviour
 
   void following()
   {
-    //Debug.Log("following");
+    if (state == AiState.dead)
+      return;
+
     reactionTimer = 1.0f;
 
     if (canSeePlayer() == false)
@@ -219,16 +238,27 @@ public class EnemyController : MonoBehaviour
 
   void die()
   {
-    //Debug.Log("die");
+    if (state == AiState.dead)
+      return;
     hpPool = 0;
     GameObject gob = Instantiate(BigBloodParticles.gameObject, transform.position, Quaternion.identity);
     gob.transform.parent = null;
-    Object.Destroy(gameObject);
+    dieSound.Play();
+    state = AiState.dead;
+    
+    RigidbodyConstraints cc = RigidbodyConstraints.None;
+    body.constraints = cc;
+
+
+    //Object.Destroy(gameObject, 5.0f);
   }
 
   // Update is called once per frame
   void Update()
   {
+    if (state == AiState.dead)
+      return;
+
     reactionTimer -= Time.deltaTime;
     shockingTimer -= Time.deltaTime;
 
@@ -258,6 +288,8 @@ public class EnemyController : MonoBehaviour
 
   void FixedUpdate()
   {
+    if (state == AiState.dead)
+      return;
     HandleMovement();
   }
 }
