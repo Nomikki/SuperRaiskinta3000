@@ -10,6 +10,8 @@ public class Minimap : MonoBehaviour
   const float refreshTime = 1.0f / 4.0f; //4 times per second
   PlayerController player;
 
+  List<byte> minimapData;
+
   float timer = 0;
   Texture2D texture;
   void Start()
@@ -19,11 +21,66 @@ public class Minimap : MonoBehaviour
     texture = new Texture2D(VoxelData.dungeonSize, VoxelData.dungeonSize);
     texture.filterMode = FilterMode.Point;
     GetComponent<Renderer>().material.mainTexture = texture;
+
+    ClearMinimap();
+  }
+
+
+  void calcLos()
+  {
+
+    for (int i = 0; i < VoxelData.dungeonSize * VoxelData.dungeonSize; i++)
+    {
+      if (minimapData[i] == 1)
+        minimapData[i] = 2;
+    }
+
+    for (int a = 0; a < 360; a++)
+    {
+      float px = player.GetPosition().x;
+      float py = player.GetPosition().z;
+      float dx = Mathf.Sin((float)a / 180.0f * 3.141f);
+      float dy = Mathf.Cos((float)a / 180.0f * 3.141f);
+
+
+      for (int l = 0; l < 10; l++)
+      {
+        px += dx;
+        py += dy;
+        int tx = (int)px;
+        int ty = (int)py;
+        if (tx > 0 && ty > 0 && tx < VoxelData.dungeonSize && ty < VoxelData.dungeonSize)
+        {
+          if (worldGenerator.CanWalk(tx, ty) == true)
+          {
+            int index = tx + ty * VoxelData.dungeonSize;
+            if (index > 0 && index < minimapData.Count)
+            {
+              minimapData[index] = 1;
+            }
+          }
+          else
+          {
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  public void ClearMinimap()
+  {
+    minimapData = new List<byte>();
+    minimapData.Clear();
+    for (int i = 0; i < VoxelData.dungeonSize * VoxelData.dungeonSize; i++)
+      minimapData.Add(0);
   }
 
   public void GenerateMinimap()
   {
     Color color = Color.black;
+
+    calcLos();
 
     for (int y = 0; y < texture.height; y++)
     {
@@ -32,9 +89,13 @@ public class Minimap : MonoBehaviour
         color = Color.black;
         color.a = 0;
 
-        if (worldGenerator.CanWalk(x, y))
+        int index = x + y * VoxelData.dungeonSize;
+        if (worldGenerator.CanWalk(x, y) && minimapData[index] != 0)
         {
-          color = Color.white;
+          if (minimapData[index] == 1)
+            color = Color.white;
+          else
+            color = Color.gray;
           color.a = 0.5f;
         }
 

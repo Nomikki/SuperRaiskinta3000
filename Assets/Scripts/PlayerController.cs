@@ -94,10 +94,7 @@ public class PlayerController : MonoBehaviour
     }
   }
 
-  public Vector3 GetPosition()
-  {
-    return transform.position;
-  }
+ 
 
   void HandleRotations()
   {
@@ -262,6 +259,11 @@ public class PlayerController : MonoBehaviour
 
     body.position = pos;
     body.velocity = Vector3.zero;
+  }
+
+   public Vector3 GetPosition()
+  {
+    return body.position;
   }
 
   public void TakeDamage(float amount, Vector3 direction)

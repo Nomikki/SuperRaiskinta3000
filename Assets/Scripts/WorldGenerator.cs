@@ -28,9 +28,10 @@ public class WorldGenerator : MonoBehaviour
     generateBSP();
     //generateTestLevel();
     minimap.worldGenerator = this;
-    minimap.GenerateMinimap();
     building();
     playerObject.GetComponent<PlayerController>().SetPosition(startPos);
+    minimap.ClearMinimap();
+    minimap.GenerateMinimap();
 
   }
 
