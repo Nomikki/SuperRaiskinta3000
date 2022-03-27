@@ -7,12 +7,14 @@ public class EnemyController : MonoBehaviour
   public float hpPool = 100;
   public float movingSpeed = 1.0f;
   public float turningSpeed = 2.0f;
-  public GameObject ammo;
+  //public GameObject ammo;
   public ParticleSystem bloodParticles;
   public ParticleSystem BigBloodParticles;
+  /*
   public float ammoPerSecond = 2;
   float ammoTimer = 0;
   float reactionTimer = 0.0f;
+  */
 
 
 
@@ -37,12 +39,15 @@ public class EnemyController : MonoBehaviour
 
   void OnDrawGizmosSelected()
   {
+    /*
     Gizmos.color = Color.red;
     Gizmos.DrawSphere(targetPosition, 0.5f);
+    */
   }
 
   void HandleMovement()
   {
+    /*
     Vector3 velo = body.velocity;
     if (moving == true)
     {
@@ -58,37 +63,30 @@ public class EnemyController : MonoBehaviour
     currentRotation = Mathf.LerpAngle(currentRotation, targetRotation, turningSpeed * Time.deltaTime);
     body.rotation = Quaternion.Euler(0, currentRotation, 0);
     body.velocity = velo;
+    */
   }
 
   public void takeDamage(float dmg, Vector3 hitpoint)
   {
-    hpPool -= dmg;
-    //bloodParticles.transform.position = hitpoint;
     /*
-    bloodParticles.Stop();
-    bloodParticles.Play();
-    */
+    hpPool -= dmg;
     GameObject gob = Instantiate(bloodParticles.gameObject, hitpoint, Quaternion.identity);
     gob.transform.parent = null;
-
-
     if (hpPool < 0)
     {
       gob = Instantiate(BigBloodParticles.gameObject, hitpoint, Quaternion.identity);
       gob.transform.parent = null;
       Object.Destroy(gameObject);
     }
+    */
   }
 
   void Idle()
   {
+    /*
     if (reactionTimer < 0)
     {
 
-      /*
-      targetPosition.x = body.position.x + Random.Range(-5, 5);
-      targetPosition.z = body.position.z + Random.Range(-5, 5);
-      */
       targetPosition = player.GetPosition();
       if (canSeePlayer())
       {
@@ -117,20 +115,17 @@ public class EnemyController : MonoBehaviour
           moving = false;
         }
       }
-      /*
-      Transform tr = transform;
-      tr.LookAt(targetPosition);
-      body.rotation = tr.rotation;
-      */
       targetRotation = Mathf.Atan2(targetPosition.x - body.position.x, targetPosition.z - body.position.z) / 3.1415f * 180.0f;
 
 
       reactionTimer = 1.0f;
     }
+    */
   }
 
   void shoot()
   {
+    /*
     if (ammoTimer <= 0)
     {
       GameObject gob = Instantiate(ammo, transform.position + transform.forward, transform.rotation);
@@ -138,20 +133,24 @@ public class EnemyController : MonoBehaviour
 
       ammoTimer = 1.0f / ammoPerSecond;
     }
+    */
   }
 
   // Update is called once per frame
   void Update()
   {
+    /*
     HandleMovement();
     Idle();
 
     reactionTimer -= Time.deltaTime;
     ammoTimer -= Time.deltaTime;
+    */
   }
 
   bool canSeePlayer()
   {
+    /*
     Vector3 direction = player.GetPosition() - body.position;
     direction.y = 0;
     direction.Normalize();
@@ -165,7 +164,7 @@ public class EnemyController : MonoBehaviour
         return true;
       }
     }
-
+    */
     return false;
   }
 

@@ -13,7 +13,7 @@ public class missile : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-    body = GetComponent<Rigidbody>();
+    getBody();
   }
 
   // Update is called once per frame
@@ -32,19 +32,26 @@ public class missile : MonoBehaviour
         {
           hitInfo.collider.GetComponent<EnemyController>().takeDamage(damage, hitInfo.point);
         }
-      } else {
-          //?
+      }
+      else
+      {
+        //?
       }
 
       Object.Destroy(gameObject);
     }
   }
 
+  void getBody()
+  {
+    if (body == null)
+      body = GetComponent<Rigidbody>();
+  }
+
   public void shoot(Vector3 targetDirection, GameObject shooter)
   {
     transform.rotation = Quaternion.Euler(targetDirection);
-    if (body == null)
-      body = GetComponent<Rigidbody>();
+    getBody();
     body.velocity = transform.forward * movementSpeed;
   }
 
