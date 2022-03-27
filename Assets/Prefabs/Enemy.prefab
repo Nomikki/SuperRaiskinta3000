@@ -29,6 +29,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 798998217645284625}
   m_Father: {fileID: 0}
@@ -76,13 +77,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6324c6c32841924ba39ae514c1016c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpPool: 20
+  hpPool: 50
   movingSpeed: 1
+  accelerationSpeed: 1
+  currentMovementSpeed: 0
   turningSpeed: 5
+  moving: 0
+  meleeDamage: 14
+  state: 0
   ammo: {fileID: 9173003785347988270, guid: aaddd36d50523764b97e8ae3c3c78ab2, type: 3}
   bloodParticles: {fileID: 1375957887812690555, guid: b2f9e83913e0b9a4a98bde84cdc240ee, type: 3}
   BigBloodParticles: {fileID: 1375957887812690555, guid: d106bd3b7b9248240870d7f387bd9a74, type: 3}
-  ammoPerSecond: 0.5
 --- !u!1001 &908642835343325946
 PrefabInstance:
   m_ObjectHideFlags: 0

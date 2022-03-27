@@ -19,6 +19,7 @@ public class EnemyController : MonoBehaviour
   public float currentMovementSpeed = 0.0f;
   public float turningSpeed = 2.0f;
   public bool moving = false;
+  public float meleeDamage = 2;
 
   public AiState state;
 
@@ -42,6 +43,8 @@ public class EnemyController : MonoBehaviour
   float currentRotation = 0;
 
   PlayerController player;
+
+  float shockingTimer = 0;
 
 
   // Start is called before the first frame update
@@ -84,7 +87,11 @@ public class EnemyController : MonoBehaviour
     currentRotation = Mathf.LerpAngle(currentRotation, targetRotation, turningSpeed * Time.deltaTime);
     body.rotation = Quaternion.Euler(0, currentRotation, 0);
     velo.y = oldY;
-    body.velocity = velo;
+
+    if (shockingTimer <= 0.0f)
+    {
+      body.velocity = velo;
+    }
 
   }
 
@@ -98,9 +105,16 @@ public class EnemyController : MonoBehaviour
     {
       die();
     }
+    Vector3 direction = body.position - hitpoint;
+    direction.Normalize();
 
+    body.AddForce(direction, ForceMode.Impulse);
+    shockingTimer = 0.5f;
     moving = false;
     reactionTimer = 0.5f;
+
+    state = AiState.following;
+    following();
   }
 
   bool canSeePlayer()
@@ -126,13 +140,13 @@ public class EnemyController : MonoBehaviour
   {
     float distance = Vector3.Distance(body.position, player.GetPosition());
 
-    if (distance < 1.0f)
+    if (distance <= 1.0f)
     {
       state = AiState.melee;
     }
     else
     {
-      if (Random.Range(0, 100) > 80)
+      if (Random.Range(0, 100) > 30)
       {
         state = AiState.shooting;
       }
@@ -145,7 +159,7 @@ public class EnemyController : MonoBehaviour
 
   void Idle()
   {
-    Debug.Log("idle");
+    //Debug.Log("idle");
     reactionTimer = 1.0f;
     moving = false;
 
@@ -160,11 +174,11 @@ public class EnemyController : MonoBehaviour
 
   void shoot()
   {
-    Debug.Log("shoot");
+    //Debug.Log("shoot");
 
     GameObject gob = Instantiate(ammo, body.position + transform.forward, Quaternion.identity);
     gob.GetComponentInChildren<missile>().shoot(transform.forward, gameObject);
-    reactionTimer = 3.0f;
+    reactionTimer = 0.5f;
     state = AiState.idle;
     Idle();
 
@@ -172,7 +186,7 @@ public class EnemyController : MonoBehaviour
 
   void following()
   {
-    Debug.Log("following");
+    //Debug.Log("following");
     reactionTimer = 1.0f;
 
     if (canSeePlayer() == false)
@@ -191,16 +205,21 @@ public class EnemyController : MonoBehaviour
 
   void melee()
   {
-    Debug.Log("melee");
+    //Debug.Log("melee");
     reactionTimer = 2.0f;
     state = AiState.idle;
     moving = false;
-    Idle();
+
+    float distance = Vector3.Distance(body.position, player.GetPosition());
+    if (distance <= 1.0f)
+    {
+      player.TakeDamage(meleeDamage, transform.forward);
+    }
   }
 
   void die()
   {
-    Debug.Log("die");
+    //Debug.Log("die");
     hpPool = 0;
     GameObject gob = Instantiate(BigBloodParticles.gameObject, transform.position, Quaternion.identity);
     gob.transform.parent = null;
@@ -211,6 +230,7 @@ public class EnemyController : MonoBehaviour
   void Update()
   {
     reactionTimer -= Time.deltaTime;
+    shockingTimer -= Time.deltaTime;
 
     if (reactionTimer <= 0)
     {

@@ -24,7 +24,8 @@ public class missile : MonoBehaviour
     {
       if (hitInfo.collider.tag == "Player")
       {
-        Debug.Log("Player takes damage!");
+        //Debug.Log("Player takes damage!");
+        hitInfo.collider.GetComponent<PlayerController>().TakeDamage(damage, transform.forward);
       }
       else if (hitInfo.collider.tag == "Enemy")
       {

@@ -1,10 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+
 
 public class PlayerController : MonoBehaviour
 {
-
+  public bool alive = true;
+  public float hpPool = 100;
+  public float shockTime = 0.0f;
   public float movingSpeed = 1.5f;
   public float jumpForce = 1.5f;
   public float activationDistance = 0.5f;
@@ -29,6 +33,8 @@ public class PlayerController : MonoBehaviour
 
   public Vector3 camStartPosition;
   public Vector3 weaponStartPosition;
+
+  public TextMeshProUGUI hpText;
 
 
   /*
@@ -64,23 +70,28 @@ public class PlayerController : MonoBehaviour
     Vector3 velocity = body.velocity;
     float oldY = velocity.y;
     velocity.y = 0;
-    //velocity += (transform.forward * vertical + transform.right * horizontal);
-    velocity = transform.right * horizontal + transform.forward * vertical;
-    velocity = Vector3.ClampMagnitude(velocity, 1);
-    velocity *= movingSpeed;
-    velocity.y = oldY;
 
-    if (tryJump > 0)
+    if (alive)
     {
-      if (isGrounded)
+      velocity = transform.right * horizontal + transform.forward * vertical;
+      velocity = Vector3.ClampMagnitude(velocity, 1);
+      velocity *= movingSpeed;
+      velocity.y = oldY;
+
+      if (tryJump > 0)
       {
-        velocity.y = jumpForce;
-        isGrounded = false;
+        if (isGrounded)
+        {
+          velocity.y = jumpForce;
+          isGrounded = false;
+        }
       }
     }
 
-
-    body.velocity = velocity;
+    if (shockTime <= 0.0f)
+    {
+      body.velocity = velocity;
+    }
   }
 
   public Vector3 GetPosition()
@@ -90,6 +101,9 @@ public class PlayerController : MonoBehaviour
 
   void HandleRotations()
   {
+    if (alive == false)
+      return;
+
     float mouseX = Input.GetAxis("Mouse X");
     float mouseY = -Input.GetAxis("Mouse Y");
 
@@ -134,10 +148,18 @@ public class PlayerController : MonoBehaviour
     HandleMovement();
     HandleRotations();
     HandleFlashlight();
-    HandleUse();
-    HandleShooting();
-    HandleRecoil();
+    if (alive)
+    {
+      HandleUse();
+      HandleShooting();
+      HandleRecoil();
+    }
+    hpText.text = "HP " + hpPool.ToString();
+
+    shockTime -= Time.deltaTime;
   }
+
+
 
   void HandleUse()
   {
@@ -174,8 +196,8 @@ public class PlayerController : MonoBehaviour
       lookAt.y = Mathf.Lerp(lookAt.y, (lookAt.y - (recoildDirection.y * sprayArea)), recoilTime * 4);
       lookAt.x = Mathf.Lerp(lookAt.x, (lookAt.x - (recoildDirection.x * sprayArea)), recoilTime * 4);
 
-      cam.transform.localPosition = camStartPosition + new Vector3(0, 0, Mathf.Lerp(recoilTime*0.2f, 0, recoilTime));
-      weapon.transform.localPosition = weaponStartPosition + new Vector3(0, 0, Mathf.Lerp(recoilTime, 0, recoilTime*4));
+      cam.transform.localPosition = camStartPosition + new Vector3(0, 0, Mathf.Lerp(recoilTime * 0.2f, 0, recoilTime));
+      weapon.transform.localPosition = weaponStartPosition + new Vector3(0, 0, Mathf.Lerp(recoilTime, 0, recoilTime * 4));
     }
 
     if (recoilTime <= 0.0f)
@@ -240,6 +262,19 @@ public class PlayerController : MonoBehaviour
 
     body.position = pos;
     body.velocity = Vector3.zero;
+  }
+
+  public void TakeDamage(float amount, Vector3 direction)
+  {
+    hpPool -= amount;
+    //body.velocity += direction * amount;
+    body.AddForce(direction * amount * 0.5f, ForceMode.Impulse);
+    shockTime = 0.33f;
+    if (hpPool <= 0)
+    {
+      hpPool = 0;
+      alive = false;
+    }
   }
 }
 
