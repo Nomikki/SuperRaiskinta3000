@@ -102,15 +102,6 @@ public class Chunk : MonoBehaviour
     uvs.Add(new Vector2(x + norm, y));
     uvs.Add(new Vector2(x + norm, y + norm));
 
-
-
-    /*
-    uvs.Add(VoxelData.uvs[0]);
-    uvs.Add(VoxelData.uvs[1]);
-    uvs.Add(VoxelData.uvs[2]);
-    uvs.Add(VoxelData.uvs[3]);
-    */
-
   }
 
   public void Populate(Vector2 pos)

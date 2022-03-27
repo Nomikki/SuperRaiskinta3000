@@ -25,8 +25,8 @@ public class WorldGenerator : MonoBehaviour
   void Start()
   {
     initAll();
-    generateBSP();
-    //generateTestLevel();
+    //generateBSP();
+    generateTestLevel();
     minimap.worldGenerator = this;
     minimap.GenerateMinimap();
     building();

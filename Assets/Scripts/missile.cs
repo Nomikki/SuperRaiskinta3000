@@ -50,7 +50,7 @@ public class missile : MonoBehaviour
 
   public void shoot(Vector3 targetDirection, GameObject shooter)
   {
-    transform.rotation = Quaternion.Euler(targetDirection);
+    transform.forward = targetDirection;
     getBody();
     body.velocity = transform.forward * movementSpeed;
   }
