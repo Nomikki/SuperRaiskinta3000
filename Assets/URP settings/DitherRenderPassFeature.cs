@@ -33,8 +33,8 @@ public class DitherRenderPassFeature : ScriptableRendererFeature
             CommandBuffer commandBuffer = CommandBufferPool.Get();
 
             commandBuffer.GetTemporaryRT(tempRenderTargetHandler.id, renderingData.cameraData.cameraTargetDescriptor);
-            Blit(commandBuffer, source, tempRenderTargetHandler.Identifier(), material);
-            Blit(commandBuffer, tempRenderTargetHandler.Identifier(), source);
+            //Blit(commandBuffer, source, tempRenderTargetHandler.Identifier(), material);
+            //Blit(commandBuffer, tempRenderTargetHandler.Identifier(), source);
 
             context.ExecuteCommandBuffer(commandBuffer);
             CommandBufferPool.Release(commandBuffer);
